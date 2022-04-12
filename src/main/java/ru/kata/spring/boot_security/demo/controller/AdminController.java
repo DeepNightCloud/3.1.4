@@ -9,7 +9,6 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
-import java.util.ArrayList;
 
 @Controller
 @RequestMapping()
@@ -25,20 +24,23 @@ public class AdminController {
     }
 
     @GetMapping("admin")
-    public String pageForAdmin(Model model) {
+    public String pageForAdmin(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("users", userService.listUser());
-        return "adm";
+        model.addAttribute("userRole", roleService.getAllRoles());
+        model.addAttribute("user", user);
+        return "newAdm";
     }
 
     @GetMapping("admin/new")
-    public String pageCreateUser(@ModelAttribute("user") User user, Model model) {
-        model.addAttribute("listRoles",roleService.getAllRoles());
+    public String pageCreateUser(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("user", user);
+        model.addAttribute("userRole",roleService.getAllRoles());
         return "create";
     }
 
-    @PostMapping("admin/new")
-    public String pageCreate(@ModelAttribute("user") User user, @RequestParam("listRoles") ArrayList<Long> roles) {
-        user.setRoles(roleService.findByIdRoles(roles));
+    @PostMapping("admin/add")
+    public String pageCreate(@ModelAttribute("user") User user, @RequestParam("userRole") String[] roles) {
+        user.setRoles(roleService.getSetOfRoles(roles));
         userService.passwordCoder(user);
         userService.saveUser(user);
         return "redirect:/admin";
@@ -53,13 +55,13 @@ public class AdminController {
     @GetMapping("admin/edit/{id}")
     public String pageEditUser(@PathVariable("id") long id, Model model) {
         model.addAttribute("user",userService.showUser(id));
-        model.addAttribute("listRoles", roleService.getAllRoles());
-        return "edit";
+        model.addAttribute("userRole", roleService.getAllRoles());
+        return "newAdm";
     }
 
     @PutMapping("admin/edit")
-    public String pageEdit(User user, @RequestParam("listRoles") ArrayList<Long>roles) {
-        user.setRoles(roleService.findByIdRoles(roles));
+    public String pageEdit(User user, @RequestParam("userRole") String[] roles) {
+        user.setRoles(roleService.getSetOfRoles(roles));
         userService.passwordCoder(user);
         userService.updateUser(user);
         return "redirect:/admin";
