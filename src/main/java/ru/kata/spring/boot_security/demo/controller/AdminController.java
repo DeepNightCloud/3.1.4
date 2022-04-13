@@ -52,13 +52,6 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @GetMapping("admin/edit/{id}")
-    public String pageEditUser(@PathVariable("id") long id, Model model) {
-        model.addAttribute("user",userService.showUser(id));
-        model.addAttribute("userRole", roleService.getAllRoles());
-        return "newAdm";
-    }
-
     @PutMapping("admin/edit")
     public String pageEdit(User user, @RequestParam("userRole") String[] roles) {
         user.setRoles(roleService.getSetOfRoles(roles));
