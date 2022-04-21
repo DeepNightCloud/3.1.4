@@ -36,8 +36,10 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void saveUser(User user) {
+    public User saveUser(User user) {
          userDao.saveUser(user);
+
+        return user;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void delete(Long id) {
+        public void delete(Long id) {
         userDao.delete(id);
     }
 
@@ -64,13 +66,18 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public User getUserByLogin(String username) {
-        return userDao.getUserByLogin(username);
+    public User getUserByLogin(String email) {
+        return userDao.getUserByLogin(email);
     }
 
     @Override
     public User passwordCoder(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return user;
+    }
+
+    @Override
+    public User showIdUser(Long id) {
+        return userDao.showIdUser(id);
     }
 }

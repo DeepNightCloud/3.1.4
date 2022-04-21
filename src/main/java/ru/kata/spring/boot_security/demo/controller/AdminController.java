@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
@@ -11,7 +12,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 
 @Controller
-@RequestMapping()
+@RequestMapping("/admin")
 public class AdminController {
 
     private  RoleService roleService;
@@ -23,7 +24,7 @@ public class AdminController {
         this.userService = userService;
     }
 
-    @GetMapping("admin")
+    @GetMapping
     public String pageForAdmin(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("users", userService.listUser());
         model.addAttribute("userRole", roleService.getAllRoles());
@@ -31,29 +32,23 @@ public class AdminController {
         return "newAdm";
     }
 
-    @GetMapping("admin/new")
-    public String pageCreateUser(@AuthenticationPrincipal User user, Model model) {
-        model.addAttribute("user", user);
-        model.addAttribute("userRole",roleService.getAllRoles());
-        return "create";
-    }
-
-    @PostMapping("admin/add")
-    public String pageCreate(@ModelAttribute("user") User user, @RequestParam("userRole") String[] roles) {
+    @PostMapping
+    public String pageCreate(@ModelAttribute("user") User user,
+                             @RequestParam(value = "createRoles", required = false) String[] roles) {
         user.setRoles(roleService.getSetOfRoles(roles));
         userService.passwordCoder(user);
         userService.saveUser(user);
         return "redirect:/admin";
     }
 
-    @DeleteMapping("admin/delete/{id}")
+    @GetMapping("/delete/{id}")
     public String pageDelete(@PathVariable("id") long id) {
         userService.delete(id);
         return "redirect:/admin";
     }
 
-    @PutMapping("admin/edit")
-    public String pageEdit(User user, @RequestParam("userRole") String[] roles) {
+    @PostMapping("/{id}")
+    public String pageEdit(@ModelAttribute("user") User user, @RequestParam(value = "editRoles") String[] roles) {
         user.setRoles(roleService.getSetOfRoles(roles));
         userService.passwordCoder(user);
         userService.updateUser(user);
